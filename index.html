@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>Windows 11 Update</title>
+    <style>
+        /* Reset & Base Styles */
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            color: #fff;
+            /* Font Segoe UI khas Windows 11 */
+            font-family: "Montserrat", "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            overflow: hidden;
+        }
+
+        /* ----- PANEL SETUP (Hanya untuk persiapan awal) ----- */
+        #setup-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #1e1e1e;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            z-index: 100;
+            border: 1px solid #333;
+            width: 860px;
+            max-width: 92vw;
+        }
+
+        #setup-panel h2 {
+            font-weight: 600;
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .input-group label {
+            font-size: 13px;
+            color: #aaa;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            background: #333;
+            border: 1px solid #444;
+            color: #fff;
+            border-radius: 5px;
+            font-family: "Segoe UI", sans-serif;
+        }
+
+        #start-btn {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            background: #0078D4;
+            border: none;
+            color: white;
+            font-weight: 600;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        #start-btn:hover {
+            background: #106EBE;
+        }
+
+        /* ----- CAROUSEL SETUP ----- */
+        .setup-wrapper {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .carousel-section {
+            perspective: 900px;
+            width: 340px;
+            height: 340px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .carousel {
+            width: 140px;
+            height: 190px;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: spin 20s infinite linear;
+        }
+
+        .card {
+            position: absolute;
+            width: 140px;
+            height: 190px;
+            border-radius: 14px;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+            backface-visibility: hidden;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+            border: 2px solid rgba(255,255,255,0.15);
+        }
+
+        .card:nth-child(1) { transform: rotateY(0deg) translateZ(130px); }
+        .card:nth-child(2) { transform: rotateY(90deg) translateZ(130px); }
+        .card:nth-child(3) { transform: rotateY(180deg) translateZ(130px); }
+        .card:nth-child(4) { transform: rotateY(270deg) translateZ(130px); }
+
+        @keyframes spin {
+            0%   { transform: rotateY(0deg); }
+            100% { transform: rotateY(360deg); }
+        }
+
+        .form-section {
+            flex: 1;
+            text-align: center;
+        }
+
+        /* ----- OVERLAY WELCOME ----- */
+        #welcome-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+
+        #welcome-box {
+            background: #1e1e1e;
+            padding: 35px;
+            border-radius: 12px;
+            border: 1px solid #333;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+        }
+
+        #welcome-box h2 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #ff4444;
+        }
+
+        #welcome-box p {
+            font-size: 14px;
+            color: #aaa;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        #welcome-box button {
+            padding: 10px 30px;
+            background: #0078D4;
+            border: none;
+            color: white;
+            font-weight: 600;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        #welcome-box button:hover {
+            background: #106EBE;
+        }
+
+        /* ----- LAYAR PRANK UTAMA ----- */
+        #prank-screen {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: relative; /* Menggunakan relative agar elemen di dalamnya bisa diatur secara absolut */
+            background: #000;
+            cursor: none; /* Sembunyikan mouse agar tampak seperti sistem asli */
+        }
+
+        /* Grup Konten Tengah (Loader + Teks Persen) */
+        .center-container {
+            position: absolute;
+            top: 40%; /* Sedikit ke atas dari titik tengah murni, persis seperti Windows Update */
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        /* Animasi Loading Windows 11 */
+        .loader {
+            position: relative;
+            width: 52px;
+            height: 52px;
+            margin-bottom: 35px;
+        }
+
+        .loader .circle {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transform: rotate(225deg);
+            animation: orbit 5.5s infinite;
+        }
+
+        .loader .circle:after {
+            content: '';
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #fff;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+        }
+
+        .loader .circle:nth-child(2) { animation-delay: 240ms; }
+        .loader .circle:nth-child(3) { animation-delay: 480ms; }
+        .loader .circle:nth-child(4) { animation-delay: 720ms; }
+        .loader .circle:nth-child(5) { animation-delay: 960ms; }
+
+        @keyframes orbit {
+            0% { transform: rotate(225deg); opacity: 1; animation-timing-function: ease-out; }
+            7% { transform: rotate(345deg); animation-timing-function: linear; }
+            30% { transform: rotate(455deg); animation-timing-function: ease-in-out; }
+            39% { transform: rotate(690deg); animation-timing-function: linear; }
+            70% { transform: rotate(815deg); opacity: 1; animation-timing-function: ease-out; }
+            75% { transform: rotate(945deg); animation-timing-function: ease-out; }
+            76% { transform: rotate(945deg); opacity: 0; }
+            100% { transform: rotate(945deg); opacity: 0; }
+        }
+
+        /* Gaya Teks Status Tengah */
+        .status-text {
+            font-size: 22px;
+            line-height: 1.4;
+            font-weight: 400; /* Menggunakan ketebalan font tipis khas Windows 11 */
+            letter-spacing: 0.1px;
+            color: #ffffff;
+        }
+
+        .text-top {
+            display: block;
+            margin-bottom: 4px; 
+            }
+
+        /* Teks Bagian Bawah Layar (Perbaikan Layout Utama) */
+        .bottom-text {
+            position: absolute;
+            bottom: 10%; /* Mengunci posisi teks di 7% dari bawah batas layar */
+            left: 50%;
+            transform: translateX(-50%);
+            line-height: 1.6;
+            font-size: 22px;
+            font-weight: 400;
+            letter-spacing: 0.1px;
+            color: #ffffff;
+            text-align: center;
+            white-space: nowrap; /* Mencegah teks patah ke bawah otomatis */
+        }
+    </style>
+</head>
+<body>
+
+    <div id="welcome-overlay">
+        <div id="welcome-box">
+            <h2>🚨 DPO ODGJ 🚨</h2>
+            <p>Selamat datang di website DPO ODGJ!<br><br>
+            Ini adalah website untuk DPO.<br><br>
+            — Tim ODGJ Task Force</p>
+            <button id="welcome-ok">Oke</button>
+        </div>
+    </div>
+
+    <div id="setup-panel">
+        <h2>daftar pencarian orang gila (DPO ODGJ) </h2>
+        <div class="setup-wrapper">
+            <div class="carousel-section">
+                <div class="carousel">
+                    <div class="card" style="background-image: url('asset/eka.jpeg')"></div>
+                    <div class="card" style="background-image: url('asset/dino.jpg')"></div>
+                    <div class="card" style="background-image: url('asset/puji.jpg')"></div>
+                    <div class="card" style="background-image: url('asset/sodirin-meren.jpeg')"></div>
+                </div>
+            </div>
+            <div class="form-section">
+                <h2>Fake Update Setup</h2>
+                <div class="input-group">
+                    <label>Update time (Menit durasi):</label>
+                    <input type="number" id="update-time" value="42">
+                </div>
+                <div class="input-group">
+                    <label>Start time (Persentase awal):</label>
+                    <input type="number" id="start-time" value="33">
+                </div>
+                <button id="start-btn">Mulai Prank</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="prank-screen">
+        
+        <div class="center-container">
+            <div class="loader">
+                <div class="circle"></div>
+                <div class="circle"></div>
+                <div class="circle"></div>
+                <div class="circle"></div>
+                <div class="circle"></div>
+            </div>
+            
+            <div class="status-text">
+              <span class="text-top">You are <span id="percent-val">33</span>% there.<br></span>
+              <span>Please keep your computer on.</span>
+            </div>
+        </div>
+
+        <div class="bottom-text">
+            <span>Your computer may restart a few times.</span>
+        </div>
+
+    </div>
+
+    <audio id="bg-audio" src="asset/audio.mp3" loop preload="auto"></audio>
+
+    <script>
+        const setupPanel = document.getElementById('setup-panel');
+        const prankScreen = document.getElementById('prank-screen');
+        const startBtn = document.getElementById('start-btn');
+        const percentVal = document.getElementById('percent-val');
+        const bgAudio = document.getElementById('bg-audio');
+
+        let currentPercent = 33;
+        let totalMinutes = 42;
+        let updateInterval;
+
+        // Alert welcome + trigger audio
+        document.getElementById('welcome-ok').addEventListener('click', () => {
+            document.getElementById('welcome-overlay').style.display = 'none';
+            bgAudio.volume = 1.0;
+            bgAudio.currentTime = 0;
+            bgAudio.loop = true;
+            bgAudio.play().catch(() => {});
+        });
+
+        startBtn.addEventListener('click', () => {
+            totalMinutes = parseInt(document.getElementById('update-time').value) || 42;
+            currentPercent = parseInt(document.getElementById('start-time').value) || 33;
+            
+            if (currentPercent > 100) currentPercent = 100;
+            if (currentPercent < 0) currentPercent = 0;
+
+            percentVal.textContent = currentPercent;
+
+            setupPanel.style.display = 'none';
+            prankScreen.style.display = 'block';
+
+            // Putar audio (pastikan jalan)
+            bgAudio.currentTime = 0;
+            bgAudio.play().catch(() => {});
+
+            // Masuk Mode Fullscreen
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen();
+            }
+
+            // Atur interval kenaikan angka %
+            let remainingPercent = 100 - currentPercent;
+            if (remainingPercent > 0) {
+                let totalSeconds = totalMinutes * 60;
+                let msPerPercent = (totalSeconds / remainingPercent) * 1000;
+
+                updateInterval = setInterval(() => {
+                    if (currentPercent < 100) {
+                        currentPercent++;
+                        percentVal.textContent = currentPercent;
+                    } else {
+                        clearInterval(updateInterval);
+                    }
+                }, msPerPercent);
+            }
+        });
+
+        // Jika menekan tombol ESC untuk keluar dari fullscreen, panel setup kembali muncul
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                bgAudio.pause();
+                bgAudio.currentTime = 0;
+                clearInterval(updateInterval);
+                prankScreen.style.display = 'none';
+                setupPanel.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
