@@ -65,6 +65,8 @@ Mode *fullscreen* aktif secara otomatis, dan keluar dari fullscreen akan mengemb
 
 > **Tips:** Hosting di **GitHub Pages** biar bisa diakses dari HP korban via link!
 
+> *Project ini dikerjakan oleh tim ODGJ Task Force — KeymalLy*
+
 ## 🌐 Deploy ke GitHub Pages
 
 ```bash
